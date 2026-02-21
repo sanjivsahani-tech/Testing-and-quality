@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-21T04:24:13.249Z",
+  "generatedAt": "2026-02-21T05:24:57.395Z",
   "summary": {
     "totalSuites": 5,
     "passedSuites": 5,
@@ -22,7 +22,7 @@
   },
   "suites": [
     {
-      "file": "tests\\validateEmail.test.js",
+      "file": "tests\\unit\\validateEmail.unit.test.js",
       "type": "unit",
       "status": "passed",
       "passing": 2,
@@ -30,17 +30,17 @@
       "pending": 0,
       "tests": [
         {
-          "name": "validateEmail utility returns true for a valid email",
+          "name": "Unit | validateEmail valid inputs returns true for a valid email",
           "status": "passed"
         },
         {
-          "name": "validateEmail utility returns false for invalid email values",
+          "name": "Unit | validateEmail invalid inputs returns false for invalid email values",
           "status": "passed"
         }
       ]
     },
     {
-      "file": "tests\\userController.unit.test.js",
+      "file": "tests\\unit\\userController.unit.test.js",
       "type": "unit",
       "status": "passed",
       "passing": 7,
@@ -48,37 +48,37 @@
       "pending": 0,
       "tests": [
         {
-          "name": "userController unit tests createUser returns 400 when name is empty",
+          "name": "Unit | userController createUser returns 400 when name is empty",
           "status": "passed"
         },
         {
-          "name": "userController unit tests createUser returns 400 when email is invalid",
+          "name": "Unit | userController createUser returns 400 when email is invalid",
           "status": "passed"
         },
         {
-          "name": "userController unit tests createUser returns 201 and saves trimmed values for valid input",
+          "name": "Unit | userController createUser returns 201 and saves trimmed values for valid input",
           "status": "passed"
         },
         {
-          "name": "userController unit tests getUserById returns 404 when user does not exist",
+          "name": "Unit | userController getUserById returns 404 when user does not exist",
           "status": "passed"
         },
         {
-          "name": "userController unit tests getUserById returns 200 and user when user exists",
+          "name": "Unit | userController getUserById returns 200 and user when user exists",
           "status": "passed"
         },
         {
-          "name": "userController unit tests deleteUser returns 404 when user does not exist",
+          "name": "Unit | userController deleteUser returns 404 when user does not exist",
           "status": "passed"
         },
         {
-          "name": "userController unit tests deleteUser returns 204 and removes user when user exists",
+          "name": "Unit | userController deleteUser returns 204 and removes user when user exists",
           "status": "passed"
         }
       ]
     },
     {
-      "file": "tests\\userApi.api.test.js",
+      "file": "tests\\api\\userApi.api.test.js",
       "type": "api",
       "status": "passed",
       "passing": 4,
@@ -86,25 +86,25 @@
       "pending": 0,
       "tests": [
         {
-          "name": "User API contract tests POST /users returns 201 with created user shape",
+          "name": "API | user contract POST /users returns 201 with created user shape",
           "status": "passed"
         },
         {
-          "name": "User API contract tests POST /users returns 400 for invalid email",
+          "name": "API | user contract POST /users returns 400 for invalid email",
           "status": "passed"
         },
         {
-          "name": "User API contract tests GET /users/:id returns 200 with expected user",
+          "name": "API | user contract GET /users/:id returns 200 with expected user",
           "status": "passed"
         },
         {
-          "name": "User API contract tests DELETE /users/:id returns 204 and empty body",
+          "name": "API | user contract DELETE /users/:id returns 204 and empty body",
           "status": "passed"
         }
       ]
     },
     {
-      "file": "tests\\userRoutes.test.js",
+      "file": "tests\\integration\\userRoutes.integration.test.js",
       "type": "integration",
       "status": "passed",
       "passing": 7,
@@ -112,37 +112,37 @@
       "pending": 0,
       "tests": [
         {
-          "name": "User API integration tests POST /users creates a user successfully",
+          "name": "Integration | user routes POST /users creates a user successfully",
           "status": "passed"
         },
         {
-          "name": "User API integration tests POST /users returns 400 for invalid data",
+          "name": "Integration | user routes POST /users returns 400 for invalid data",
           "status": "passed"
         },
         {
-          "name": "User API integration tests GET /users returns all users",
+          "name": "Integration | user routes GET /users returns all users",
           "status": "passed"
         },
         {
-          "name": "User API integration tests GET /users/:id returns one user by ID",
+          "name": "Integration | user routes GET /users/:id returns one user by ID",
           "status": "passed"
         },
         {
-          "name": "User API integration tests GET /users/:id returns 404 when user is missing",
+          "name": "Integration | user routes GET /users/:id returns 404 when user is missing",
           "status": "passed"
         },
         {
-          "name": "User API integration tests DELETE /users/:id deletes user successfully",
+          "name": "Integration | user routes DELETE /users/:id deletes user successfully",
           "status": "passed"
         },
         {
-          "name": "User API integration tests DELETE /users/:id returns 404 if user does not exist",
+          "name": "Integration | user routes DELETE /users/:id returns 404 if user does not exist",
           "status": "passed"
         }
       ]
     },
     {
-      "file": "tests\\userDatabase.db.test.js",
+      "file": "tests\\database\\userDatabase.db.test.js",
       "type": "database",
       "status": "passed",
       "passing": 2,
@@ -150,11 +150,11 @@
       "pending": 0,
       "tests": [
         {
-          "name": "User MongoDB database tests creates and reads a user from MongoDB",
+          "name": "Database | MongoDB persistence create and read creates and reads a user from MongoDB",
           "status": "passed"
         },
         {
-          "name": "User MongoDB database tests deletes a user from MongoDB",
+          "name": "Database | MongoDB persistence delete deletes a user from MongoDB",
           "status": "passed"
         }
       ]

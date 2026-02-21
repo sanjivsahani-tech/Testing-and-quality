@@ -27,6 +27,9 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup/jest.setup.js"
+    ],
     "coverageReporters": [
       "text",
       "lcov",

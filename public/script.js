@@ -36,33 +36,91 @@ function renderUsers(users) {
 }
 
 function renderReportSummary(report) {
-  const stats = [
-    { label: "Total Tests", value: report.summary.totalTests },
+  const numericCoverage = [
+    Number(report.coverage.lines),
+    Number(report.coverage.branches),
+    Number(report.coverage.functions),
+    Number(report.coverage.statements)
+  ];
+  const overallCoverage =
+    (numericCoverage.reduce((acc, value) => acc + value, 0) / numericCoverage.length).toFixed(2);
+
+  const createCards = (items) =>
+    items
+      .map(
+        (stat) => `
+        <article class="report-stat ${stat.tone ? `coverage-${stat.tone}` : ""}">
+          <p class="label">${stat.label}</p>
+          <p class="value">${stat.value}</p>
+          ${stat.note ? `<p class="coverage-note">${stat.note}</p>` : ""}
+        </article>
+      `
+      )
+      .join("");
+
+  const testsBlock = createCards([{ label: "Total Tests", value: report.summary.totalTests }]);
+  const testTypesBlock = createCards([
     { label: "Unit Tests", value: report.summary.unitTests ?? 0 },
     { label: "Integration Tests", value: report.summary.integrationTests ?? 0 },
     { label: "API Tests", value: report.summary.apiTests ?? 0 },
-    { label: "Database Tests", value: report.summary.databaseTests ?? 0 },
+    { label: "Database Tests", value: report.summary.databaseTests ?? 0 }
+  ]);
+  const testResultBlock = createCards([
     { label: "Passed Tests", value: report.summary.passedTests },
     { label: "Failed Tests", value: report.summary.failedTests },
-    { label: "Test Suites", value: `${report.summary.passedSuites}/${report.summary.totalSuites}` },
-    { label: "Statements", value: `${report.coverage.statements}%` },
-    { label: "Branches", value: `${report.coverage.branches}%` },
-    { label: "Functions", value: `${report.coverage.functions}%` },
-    { label: "Lines", value: `${report.coverage.lines}%` }
-  ];
+    { label: "Test Suites", value: `${report.summary.passedSuites}/${report.summary.totalSuites}` }
+  ]);
+  const coverageBlock = createCards([{ label: "Overall Coverage", value: `${overallCoverage}%` }]);
+  const detailedCoverageBlock = createCards([
+    {
+      label: "Line Coverage",
+      value: `${report.coverage.lines}%`,
+      note: "Lines executed",
+      tone: "line"
+    },
+    {
+      label: "Branch Coverage",
+      value: `${report.coverage.branches}%`,
+      note: "Conditions tested",
+      tone: "branch"
+    },
+    {
+      label: "Function Coverage",
+      value: `${report.coverage.functions}%`,
+      note: "Functions called",
+      tone: "function"
+    },
+    {
+      label: "Statement Coverage",
+      value: `${report.coverage.statements}%`,
+      note: "Statements executed",
+      tone: "statement"
+    }
+  ]);
 
-  reportSummary.innerHTML = stats
-    .map(
-      (stat) => `
-      <article class="report-stat">
-        <p class="label">${stat.label}</p>
-        <p class="value">${stat.value}</p>
-      </article>
-    `
-    )
-    .join("");
+  reportSummary.innerHTML = `
+    <section class="summary-block">
+      <h3>Tests</h3>
+      <div class="report-grid report-grid-single">${testsBlock}</div>
+    </section>
+    <section class="summary-block">
+      <h3>Test Types</h3>
+      <div class="report-grid">${testTypesBlock}</div>
+    </section>
+    <section class="summary-block">
+      <h3>Test Result</h3>
+      <div class="report-grid report-grid-compact">${testResultBlock}</div>
+    </section>
+    <section class="summary-block">
+      <h3>Coverage</h3>
+      <div class="report-grid report-grid-single">${coverageBlock}</div>
+    </section>
+    <section class="summary-block">
+      <h3>Detailed Coverage</h3>
+      <div class="report-grid report-grid-detailed">${detailedCoverageBlock}</div>
+    </section>
+  `;
 }
-
 function formatTimestamp(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -279,3 +337,4 @@ refreshReportBtn.addEventListener("click", loadTestReport);
 loadUsers();
 loadTestReport();
 setInterval(loadTestReport, 5000);
+

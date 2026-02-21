@@ -42,11 +42,22 @@ Beginner-friendly User Management REST API with MVC structure, testing dashboard
 |-- postman/
 |   `-- User-Management-API.postman_collection.json
 `-- tests/
-    |-- validateEmail.test.js
-    |-- userController.unit.test.js
-    |-- userRoutes.test.js
-    |-- userApi.api.test.js
-    `-- userDatabase.db.test.js
+    |-- setup/
+    |   `-- jest.setup.js
+    |-- helpers/
+    |   |-- mockExpress.js
+    |   |-- mongoMemory.js
+    |   |-- testState.js
+    |   `-- userFixtures.js
+    |-- unit/
+    |   |-- validateEmail.unit.test.js
+    |   `-- userController.unit.test.js
+    |-- integration/
+    |   `-- userRoutes.integration.test.js
+    |-- api/
+    |   `-- userApi.api.test.js
+    `-- database/
+        `-- userDatabase.db.test.js
 ```
 
 ## Installation
@@ -106,6 +117,28 @@ Test categories:
 - Integration: route behavior with app flow
 - API: endpoint contract/status/shape tests
 - Database: MongoDB persistence tests (`mongodb-memory-server`)
+
+## Test Organization
+
+- File structure:
+  - `tests/unit` for isolated unit tests
+  - `tests/integration` for route-level flow tests
+  - `tests/api` for endpoint contract/status tests
+  - `tests/database` for real Mongo persistence tests
+- Suite organization:
+  - Each file uses nested `describe` blocks by feature/endpoint
+  - Tests are grouped by operation (`create`, `get`, `delete`, etc.)
+- Setup/teardown:
+  - Global Jest setup: `tests/setup/jest.setup.js`
+  - Per-suite state reset via `beforeEach` using `resetUserState()`
+  - Mongo lifecycle in DB tests:
+    - `beforeAll` start in-memory Mongo
+    - `afterAll` disconnect and stop server
+- Test helpers:
+  - `tests/helpers/mockExpress.js` for mocked `req`/`res`
+  - `tests/helpers/userFixtures.js` for reusable payloads/fixtures
+  - `tests/helpers/testState.js` for shared reset logic
+  - `tests/helpers/mongoMemory.js` for Mongo test lifecycle
 
 ## Frontend Test Dashboard
 

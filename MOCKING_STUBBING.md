@@ -111,13 +111,13 @@ Avoid mocking when your goal is real behavior verification:
 ## 10) Current Test Layers (Project)
 
 - Unit:
-  - `tests/validateEmail.test.js`
-  - `tests/userController.unit.test.js`
+  - `tests/unit/validateEmail.unit.test.js`
+  - `tests/unit/userController.unit.test.js`
 - Integration:
-  - `tests/userRoutes.test.js`
+  - `tests/integration/userRoutes.integration.test.js`
 - API Contract:
-  - `tests/userApi.api.test.js`
+  - `tests/api/userApi.api.test.js`
 - Database:
-  - `tests/userDatabase.db.test.js`
+  - `tests/database/userDatabase.db.test.js`
 
 This layered structure gives both speed (unit) and confidence (integration/API/database).

@@ -22,10 +22,10 @@ function detectSuiteType(filePath) {
   if (file.includes(".api.")) {
     return "api";
   }
-  if (file.includes(".unit.") || file.includes("validateemail")) {
+  if (file.includes(".unit.")) {
     return "unit";
   }
-  if (file.includes("routes")) {
+  if (file.includes(".integration.") || file.includes("routes")) {
     return "integration";
   }
   return "other";
