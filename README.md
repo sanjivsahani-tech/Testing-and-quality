@@ -1,15 +1,15 @@
 # User Management API (Node.js + Express)
 
-Beginner-friendly User Management API project with MVC structure, in-memory storage, and complete test setup using Jest + Supertest.
+This is a beginner-friendly User Management REST API built with Node.js and Express. It uses MVC structure, in-memory data storage, and a complete Jest + Supertest testing setup.
 
 ## Features
 
-- Node.js + Express REST API
-- In-memory user storage (no database)
-- MVC-style folder separation
-- Email validation utility (regex based)
-- Unit tests (Jest)
-- Integration tests (Supertest)
+- Express-based REST API
+- In-memory storage (no database)
+- Clean MVC folder structure
+- Email validation with regex
+- Unit testing with Jest
+- Integration testing with Supertest
 - Coverage reports enabled
 
 ## Project Structure
@@ -32,7 +32,7 @@ Beginner-friendly User Management API project with MVC structure, in-memory stor
 
 ## Prerequisites
 
-- Node.js (v18+ recommended)
+- Node.js (v18 or later recommended)
 - npm
 
 ## Installation
@@ -41,27 +41,27 @@ Beginner-friendly User Management API project with MVC structure, in-memory stor
 npm install
 ```
 
-## Run the Server
+## Run the Application
 
 ```bash
 npm start
 ```
 
-Server runs on:
+The server runs at:
 
-- `http://localhost:3000` (default)
-- or custom port via `PORT` environment variable
+- `http://localhost:3000` by default
+- A custom port if `PORT` is provided
 
 ## API Endpoints
 
 Base URL: `http://localhost:3000`
 
-### 1) Create User
+### POST `/users`
 
-- Method: `POST`
-- Path: `/users`
-- Success status: `201 Created`
-- Error status: `400 Bad Request`
+Creates a new user.
+
+- Success: `201 Created`
+- Validation error: `400 Bad Request`
 
 Request body:
 
@@ -98,13 +98,13 @@ or
 }
 ```
 
-### 2) Get All Users
+### GET `/users`
 
-- Method: `GET`
-- Path: `/users`
-- Success status: `200 OK`
+Returns all users.
 
-Success response:
+- Success: `200 OK`
+
+Response example:
 
 ```json
 [
@@ -116,12 +116,12 @@ Success response:
 ]
 ```
 
-### 3) Get User By ID
+### GET `/users/:id`
 
-- Method: `GET`
-- Path: `/users/:id`
-- Success status: `200 OK`
-- Error status: `404 Not Found`
+Returns a single user by ID.
+
+- Success: `200 OK`
+- Not found: `404 Not Found`
 
 Not found response:
 
@@ -131,12 +131,12 @@ Not found response:
 }
 ```
 
-### 4) Delete User By ID
+### DELETE `/users/:id`
 
-- Method: `DELETE`
-- Path: `/users/:id`
-- Success status: `204 No Content`
-- Error status: `404 Not Found`
+Deletes a user by ID.
+
+- Success: `204 No Content`
+- Not found: `404 Not Found`
 
 Not found response:
 
@@ -149,12 +149,12 @@ Not found response:
 ## Business Rules
 
 - `name` must not be empty
-- `email` must be valid (regex check)
-- Correct status codes are returned:
-  - `201` for create success
+- `email` must match a valid email format
+- HTTP status codes:
+  - `201` for successful creation
   - `400` for invalid input
-  - `404` when user not found
-  - `204` for successful delete
+  - `404` when user is not found
+  - `204` for successful deletion
 
 ## Testing
 
@@ -164,20 +164,20 @@ Run tests:
 npm test
 ```
 
-Current test coverage includes:
+Included coverage:
 
 - Unit tests for `validateEmail`
-- Invalid email cases
+- Invalid email scenarios
 - Integration tests for:
   - `POST /users` success
-  - `POST /users` invalid data
+  - `POST /users` invalid payload
   - `GET /users`
   - `GET /users/:id`
   - `DELETE /users/:id`
 
-Coverage output is generated in the `coverage/` folder.
+Coverage reports are generated in the `coverage/` folder.
 
-## Example cURL Commands
+## cURL Examples
 
 Create user:
 
@@ -193,13 +193,13 @@ Get all users:
 curl http://localhost:3000/users
 ```
 
-Get user by id:
+Get one user:
 
 ```bash
 curl http://localhost:3000/users/1
 ```
 
-Delete user:
+Delete one user:
 
 ```bash
 curl -X DELETE http://localhost:3000/users/1
