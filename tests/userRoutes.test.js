@@ -11,8 +11,8 @@ const userController = require("../controllers/userController");
 
 describe("User API integration tests", () => {
   // Reset shared in-memory data before each test for isolation.
-  beforeEach(() => {
-    userController.__resetUsers();
+  beforeEach(async () => {
+    await userController.__resetUsers();
   });
 
   // Happy path: creating a valid user should return 201 + created object.

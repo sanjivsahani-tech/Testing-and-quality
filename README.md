@@ -1,16 +1,17 @@
 # User Management API (Node.js + Express)
 
-This is a beginner-friendly User Management REST API built with Node.js and Express. It uses MVC structure, in-memory data storage, and a complete Jest + Supertest testing setup.
+Beginner-friendly User Management REST API with MVC structure, testing dashboard, and both in-memory + MongoDB support.
 
 ## Features
 
-- Express-based REST API
-- In-memory storage (no database)
-- Clean MVC folder structure
-- Email validation with regex
-- Unit testing with Jest
-- Integration testing with Supertest
-- Coverage reports enabled
+- Express REST API
+- In-memory mode (default)
+- MongoDB mode with Mongoose (`USE_MONGO=true`)
+- MVC + repository structure
+- Unit, Integration, API, and Database tests
+- Jest coverage + JSON test report generation
+- Frontend test dashboard (auto-refresh)
+- Postman collection included
 
 ## Project Structure
 
@@ -19,21 +20,34 @@ This is a beginner-friendly User Management REST API built with Node.js and Expr
 |-- app.js
 |-- server.js
 |-- package.json
+|-- config/
+|   `-- db.js
 |-- controllers/
 |   `-- userController.js
+|-- models/
+|   `-- User.js
+|-- repositories/
+|   `-- userRepository.js
 |-- routes/
 |   `-- userRoutes.js
 |-- utils/
 |   `-- validateEmail.js
+|-- public/
+|   |-- index.html
+|   |-- script.js
+|   |-- styles.css
+|   `-- test-report.json
+|-- scripts/
+|   `-- generateTestReport.js
+|-- postman/
+|   `-- User-Management-API.postman_collection.json
 `-- tests/
+    |-- validateEmail.test.js
+    |-- userController.unit.test.js
     |-- userRoutes.test.js
-    `-- validateEmail.test.js
+    |-- userApi.api.test.js
+    `-- userDatabase.db.test.js
 ```
-
-## Prerequisites
-
-- Node.js (v18 or later recommended)
-- npm
 
 ## Installation
 
@@ -41,141 +55,88 @@ This is a beginner-friendly User Management REST API built with Node.js and Expr
 npm install
 ```
 
-## Run the Application
+## Run API
+
+In-memory mode (default):
 
 ```bash
 npm start
 ```
 
-The server runs at:
+MongoDB mode:
 
-- `http://localhost:3000` by default
-- A custom port if `PORT` is provided
+```powershell
+$env:USE_MONGO="true"
+$env:MONGO_URI="mongodb://127.0.0.1:27017/test_case"
+npm start
+```
 
 ## API Endpoints
 
 Base URL: `http://localhost:3000`
 
-### POST `/users`
+- `POST /users` -> Create user (`201`, `400`)
+- `GET /users` -> Get all users (`200`)
+- `GET /users/:id` -> Get user by ID (`200`, `404`)
+- `DELETE /users/:id` -> Delete user by ID (`204`, `404`)
 
-Creates a new user.
+Business rules:
 
-- Success: `201 Created`
-- Validation error: `400 Bad Request`
-
-Request body:
-
-```json
-{
-  "name": "Alice",
-  "email": "alice@example.com"
-}
-```
-
-Success response:
-
-```json
-{
-  "id": 1,
-  "name": "Alice",
-  "email": "alice@example.com"
-}
-```
-
-Validation error response:
-
-```json
-{
-  "message": "Name is required."
-}
-```
-
-or
-
-```json
-{
-  "message": "A valid email is required."
-}
-```
-
-### GET `/users`
-
-Returns all users.
-
-- Success: `200 OK`
-
-Response example:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Alice",
-    "email": "alice@example.com"
-  }
-]
-```
-
-### GET `/users/:id`
-
-Returns a single user by ID.
-
-- Success: `200 OK`
-- Not found: `404 Not Found`
-
-Not found response:
-
-```json
-{
-  "message": "User not found."
-}
-```
-
-### DELETE `/users/:id`
-
-Deletes a user by ID.
-
-- Success: `204 No Content`
-- Not found: `404 Not Found`
-
-Not found response:
-
-```json
-{
-  "message": "User not found."
-}
-```
-
-## Business Rules
-
-- `name` must not be empty
-- `email` must match a valid email format
-- HTTP status codes:
-  - `201` for successful creation
-  - `400` for invalid input
-  - `404` when user is not found
-  - `204` for successful deletion
+- `name` cannot be empty
+- `email` must be valid
 
 ## Testing
 
-Run tests:
+Run all tests:
 
 ```bash
 npm test
 ```
 
-Included coverage:
+This command:
 
-- Unit tests for `validateEmail`
-- Invalid email scenarios
-- Integration tests for:
-  - `POST /users` success
-  - `POST /users` invalid payload
-  - `GET /users`
-  - `GET /users/:id`
-  - `DELETE /users/:id`
+1. Runs Jest with coverage
+2. Writes `coverage/jest-report.json`
+3. Writes `coverage/coverage-summary.json`
+4. Generates frontend report `public/test-report.json`
 
-Coverage reports are generated in the `coverage/` folder.
+Test categories:
+
+- Unit: utility + controller unit logic
+- Integration: route behavior with app flow
+- API: endpoint contract/status/shape tests
+- Database: MongoDB persistence tests (`mongodb-memory-server`)
+
+## Frontend Test Dashboard
+
+Open: `http://localhost:3000`
+
+The dashboard shows:
+
+- Unit / Integration / API / Database counts
+- pass/fail totals
+- coverage percentages
+- suite-wise test list
+- green tick for passed tests
+- test cases grouped in plain English
+
+Notes:
+
+- The report auto-refreshes every 5 seconds.
+- You can also click **Refresh Report** manually.
+
+## Postman Collection
+
+Import file:
+
+- `postman/User-Management-API.postman_collection.json`
+
+Includes requests for:
+
+- Create User
+- Get All Users
+- Get User By ID
+- Delete User By ID
 
 ## cURL Examples
 
@@ -193,13 +154,13 @@ Get all users:
 curl http://localhost:3000/users
 ```
 
-Get one user:
+Get user by ID:
 
 ```bash
 curl http://localhost:3000/users/1
 ```
 
-Delete one user:
+Delete user by ID:
 
 ```bash
 curl -X DELETE http://localhost:3000/users/1

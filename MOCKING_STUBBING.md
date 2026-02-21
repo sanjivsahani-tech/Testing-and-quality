@@ -1,100 +1,69 @@
 # Mocking & Stubbing Guide (Jest + Node.js)
 
-This document explains mocking and stubbing in the context of the current User Management API project.
+This guide explains how mocking and stubbing are used in the current User Management API project.
 
-## 1) Basic Definitions
+## 1) Quick Definitions
 
-- `Mocking`: Replacing a real dependency with a fake function/object and asserting how it was called.
-- `Stubbing`: Forcing a function to return a fixed value so test behavior stays predictable.
+- Mocking: replace a real dependency and verify interactions.
+- Stubbing: force a dependency to return controlled values.
 
-## 2) Mock vs Stub (Quick Difference)
+## 2) Mock vs Stub
 
-- Mock:
-  - Focus: interaction verification
-  - Example: `expect(mockFn).toHaveBeenCalledWith(...)`
-- Stub:
-  - Focus: controlled output
-  - Example: making `validateEmail` always return `true`
+- Mock is interaction-focused:
+  - Example: `expect(fn).toHaveBeenCalledWith(...)`
+- Stub is behavior-focused:
+  - Example: `validateEmail.mockReturnValue(false)`
 
-Note: In Jest, the same APIs (`jest.fn`, `jest.spyOn`) are often used for both mocking and stubbing.
+In Jest, both are typically done using `jest.fn()` or `jest.spyOn()`.
 
-## 3) Where to Use This in This Project
+## 3) Where This Project Uses Them
 
-- Controller unit tests:
-  - Stub `validateEmail` to control validation behavior.
-  - Mock Express `req`/`res` to verify status and response calls.
-- Integration tests with Supertest:
-  - Usually no mocking, because the goal is to test real route flow.
-  - Mocking is more useful when external services exist (database, email service, payment API).
+- Unit tests (`tests/userController.unit.test.js`):
+  - `validateEmail` is mocked.
+  - Express `req` and `res` are mocked.
+  - Controller behavior is validated without calling HTTP routes.
+- Integration/API/Database tests:
+  - Use real app flow with Supertest.
+  - Avoid mocking core behavior so route behavior is truly tested.
 
-## 4) Common Jest Tools
+## 4) Common Jest APIs
 
-- `jest.fn()`: creates a manual mock function
-- `mockReturnValue(value)`: sets a fixed return value (stubbing)
-- `mockImplementation(fn)`: sets custom behavior
-- `jest.spyOn(obj, "method")`: observes or replaces an existing method
-- `mockRestore()`: restores original implementation
-- `jest.mock("modulePath")`: mocks an entire module
+- `jest.mock("module")`
+- `jest.fn()`
+- `mockReturnValue(value)`
+- `mockImplementation(fn)`
+- `jest.spyOn(object, "method")`
+- `jest.clearAllMocks()`
+- `mockRestore()`
 
-## 5) Example 1: Simple Stub
-
-```js
-const stub = jest.fn().mockReturnValue(true);
-expect(stub("anything")).toBe(true);
-```
-
-This stub always returns `true`.
-
-## 6) Example 2: Mock with Interaction Verification
-
-```js
-const saveUser = jest.fn();
-
-saveUser({ name: "Alice" });
-
-expect(saveUser).toHaveBeenCalledTimes(1);
-expect(saveUser).toHaveBeenCalledWith({ name: "Alice" });
-```
-
-This verifies that the mock function was called correctly.
-
-## 7) Project Example: Controller Unit Test with Stubbing
-
-If you want to isolate `createUser` and skip real regex validation, stub `validateEmail`:
+## 5) Project Example: Stubbing `validateEmail`
 
 ```js
 jest.mock("../utils/validateEmail", () => jest.fn());
 
 const validateEmail = require("../utils/validateEmail");
-const { createUser, __resetUsers } = require("../controllers/userController");
+const userController = require("../controllers/userController");
 
-describe("createUser controller (unit)", () => {
-  beforeEach(() => {
-    __resetUsers();
-    jest.clearAllMocks();
-  });
+test("createUser returns 400 for invalid email", async () => {
+  validateEmail.mockReturnValue(false);
 
-  test("returns 201 when validateEmail stub returns true", () => {
-    validateEmail.mockReturnValue(true);
+  const req = { body: { name: "Alice", email: "bad-email" } };
+  const res = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    send: jest.fn()
+  };
 
-    const req = { body: { name: "Alice", email: "not-checked@example.com" } };
-    const res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn()
-    };
+  await userController.createUser(req, res);
 
-    createUser(req, res);
-
-    expect(validateEmail).toHaveBeenCalledWith("not-checked@example.com");
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalled();
-  });
+  expect(validateEmail).toHaveBeenCalledWith("bad-email");
+  expect(res.status).toHaveBeenCalledWith(400);
 });
 ```
 
-## 8) Project Example: Mocking Express `res`
+## 6) Mocking Express `res` Object
 
-For controller unit tests, this `res` mock is common:
+Use this shape in unit tests:
 
 ```js
 const res = {
@@ -104,39 +73,51 @@ const res = {
 };
 ```
 
-Why this works:
+`mockReturnThis()` is required to support chaining: `res.status(...).json(...)`.
 
-- `mockReturnThis()` allows chaining like `res.status(...).json(...)`.
+## 7) Async Note for This Project
 
-## 9) When to Avoid Mocking/Stubbing
+Controller methods are async (repository-based), so unit tests should use `await`:
 
-- When you need true route-level behavior (integration tests)
-- When the dependency is simple and real behavior should be tested (for example, `validateEmail` unit tests)
+```js
+await userController.createUser(req, res);
+```
 
-## 10) Best Practices
+Also reset data in async hooks:
 
-- Keep test intent clear: do not mix unit and integration goals in one test.
-- Avoid excessive mocking, because it can reduce real confidence.
-- Reset mocks in `beforeEach` with `jest.clearAllMocks()`.
-- Clean up spies/mocks that modify real modules.
-- Use behavior-focused test names, such as `returns 400 when email is invalid`.
+```js
+beforeEach(async () => {
+  await userController.__resetUsers();
+  jest.clearAllMocks();
+});
+```
 
-## 11) Suggested Additional Test File (Optional)
+## 8) When Not to Mock
 
-You can add:
+Avoid mocking when your goal is real behavior verification:
 
-- `tests/userController.unit.test.js`
+- Integration tests (`tests/userRoutes.test.js`)
+- API contract tests (`tests/userApi.api.test.js`)
+- Database tests (`tests/userDatabase.db.test.js`)
 
-In this file:
+## 9) Best Practices
 
-- Stub `validateEmail`
-- Mock `req` and `res`
-- Unit test `createUser`, `getUserById`, and `deleteUser`
+- Keep unit tests isolated and fast.
+- Keep integration/database tests realistic.
+- Reset mocks and test state in `beforeEach`.
+- Prefer explicit test names that describe behavior.
+- Mock only the dependency you need to control.
 
-## 12) Quick Summary
+## 10) Current Test Layers (Project)
 
-- Stub = fixed output
-- Mock = call verification plus optional fake behavior
-- For this project:
-  - Supertest integration tests are already strong
-  - Next improvement is dedicated controller unit tests with mocks/stubs
+- Unit:
+  - `tests/validateEmail.test.js`
+  - `tests/userController.unit.test.js`
+- Integration:
+  - `tests/userRoutes.test.js`
+- API Contract:
+  - `tests/userApi.api.test.js`
+- Database:
+  - `tests/userDatabase.db.test.js`
+
+This layered structure gives both speed (unit) and confidence (integration/API/database).

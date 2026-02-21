@@ -1,109 +1,72 @@
 /**
  * controllers/userController.js
  * -----------------------------
- * Controller layer: contains business logic for user endpoints.
- * Data is stored in memory for simplicity (no database).
+ * Controller layer for user endpoints.
+ * Supports both in-memory and MongoDB persistence through repository abstraction.
  */
 const validateEmail = require("../utils/validateEmail");
+const userRepository = require("../repositories/userRepository");
 
-// In-memory storage for demo/testing purposes.
-// Note: this resets whenever the server restarts.
-const users = [];
+async function createUser(req, res) {
+  try {
+    const { name, email } = req.body || {};
 
-// Auto-incrementing id counter for newly created users.
-let nextId = 1;
+    if (!name || String(name).trim() === "") {
+      return res.status(400).json({ message: "Name is required." });
+    }
 
-/**
- * POST /users
- * Create a user after validating name and email.
- *
- * Success: 201 + created user object
- * Validation error: 400 + message
- */
-function createUser(req, res) {
-  // Read values from request body. Fallback to empty object if body is missing.
-  const { name, email } = req.body || {};
+    if (!validateEmail(email)) {
+      return res.status(400).json({ message: "A valid email is required." });
+    }
 
-  // Business rule: name must not be empty.
-  if (!name || String(name).trim() === "") {
-    return res.status(400).json({ message: "Name is required." });
+    const createdUser = await userRepository.createUser({
+      name: String(name).trim(),
+      email: String(email).trim()
+    });
+
+    return res.status(201).json(createdUser);
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error." });
   }
-
-  // Business rule: email must be valid.
-  if (!validateEmail(email)) {
-    return res.status(400).json({ message: "A valid email is required." });
-  }
-
-  // Build the new user object.
-  // We trim whitespace to keep data clean and consistent.
-  const user = {
-    id: nextId++,
-    name: String(name).trim(),
-    email: String(email).trim()
-  };
-
-  // Save user in memory and return it.
-  users.push(user);
-  return res.status(201).json(user);
 }
 
-/**
- * GET /users
- * Return all users currently in memory.
- *
- * Success: 200 + array of users
- */
-function getUsers(req, res) {
-  return res.status(200).json(users);
-}
-
-/**
- * GET /users/:id
- * Return one user by id.
- *
- * Success: 200 + user object
- * Not found: 404 + message
- */
-function getUserById(req, res) {
-  // Convert path param to number so it can match numeric ids in storage.
-  const id = Number(req.params.id);
-  const user = users.find((item) => item.id === id);
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found." });
+async function getUsers(req, res) {
+  try {
+    const users = await userRepository.getAllUsers();
+    return res.status(200).json(users);
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error." });
   }
-
-  return res.status(200).json(user);
 }
 
-/**
- * DELETE /users/:id
- * Delete one user by id.
- *
- * Success: 204 (no content)
- * Not found: 404 + message
- */
-function deleteUser(req, res) {
-  const id = Number(req.params.id);
+async function getUserById(req, res) {
+  try {
+    const user = await userRepository.getUserById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
 
-  // Find the index so we can remove the matching item with splice.
-  const index = users.findIndex((item) => item.id === id);
-
-  if (index === -1) {
-    return res.status(404).json({ message: "User not found." });
+    return res.status(200).json(user);
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error." });
   }
-
-  // Remove exactly one element at matched index.
-  users.splice(index, 1);
-
-  // 204 means operation succeeded and response body is intentionally empty.
-  return res.status(204).send();
 }
 
-// Test helper to reset in-memory state between test cases.
-function __resetUsers() {
-  users.length = 0;
-  nextId = 1;
+async function deleteUser(req, res) {
+  try {
+    const wasDeleted = await userRepository.deleteUserById(req.params.id);
+    if (!wasDeleted) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.status(204).send();
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error." });
+  }
+}
+
+async function __resetUsers() {
+  await userRepository.resetUsers();
 }
 
 module.exports = {
