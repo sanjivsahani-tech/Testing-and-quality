@@ -1,0 +1,35 @@
+{
+  "name": "user-management-api",
+  "version": "1.0.0",
+  "description": "Beginner-friendly Node.js User Management API with Jest and Supertest tests.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest --coverage"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "jest",
+    "supertest",
+    "mvc"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "controllers/**/*.js",
+      "routes/**/*.js",
+      "utils/**/*.js",
+      "app.js"
+    ]
+  }
+}
